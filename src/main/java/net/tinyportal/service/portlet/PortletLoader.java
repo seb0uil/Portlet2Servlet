@@ -11,6 +11,11 @@ import net.tinyportal.javax.portlet.TpPortletContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Classe utilitaire pour charger le portlet.xml
+ * @author SBE10599
+ *
+ */
 public class PortletLoader {
 
 	@Autowired
@@ -18,6 +23,8 @@ public class PortletLoader {
 	
 	@Autowired
 	PortletPool portletPool;
+	
+	
 
 	public void load(ServletContext portletContext) {
 		if (!portletPool.hasPortletContext(portletContext.getContextPath())) {
@@ -36,4 +43,6 @@ public class PortletLoader {
 
 		}
 	}
+
+
 }

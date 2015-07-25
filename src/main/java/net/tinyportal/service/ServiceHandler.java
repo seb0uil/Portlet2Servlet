@@ -13,23 +13,20 @@ import java.lang.reflect.Method;
 public class ServiceHandler implements InvocationHandler {
 	ClassLoader targetServiceClassLoader;
 	String serviceName;
-	
+	Object instance;
+
 	protected ServiceHandler(ClassLoader targetServiceClassLoader, String serviceName) {
 		this.targetServiceClassLoader = targetServiceClassLoader;
 		this.serviceName = serviceName;
 		try {
-			clazz = targetServiceClassLoader.loadClass(serviceName);
+			Class<?> clazz = targetServiceClassLoader.loadClass(serviceName);
 			instance = clazz.newInstance();
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	Class<?> clazz;
-	Object instance;
-	
-	
+		
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
 		if (targetServiceClassLoader == null) {
@@ -40,8 +37,8 @@ public class ServiceHandler implements InvocationHandler {
 
 		try {
 			Thread.currentThread().setContextClassLoader(targetServiceClassLoader);
-			Class<?> webappServlet = this.clazz;//targetServiceClassLoader.loadClass(serviceName);			
-			Method getBeanMethod = webappServlet.getMethod( method.getName(), method.getParameterTypes() );
+						
+			Method getBeanMethod = instance.getClass().getMethod( method.getName(), method.getParameterTypes() );
 			getBeanMethod.setAccessible(true);
 			return  getBeanMethod.invoke(instance, args);
 		} catch (Exception e) {

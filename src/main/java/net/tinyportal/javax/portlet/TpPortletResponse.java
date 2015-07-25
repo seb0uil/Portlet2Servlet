@@ -28,15 +28,17 @@ import java.util.Map;
 import javax.portlet.PortletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import net.tinyportal.service.portlet.PortletTools;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class TpPortletResponse implements PortletResponse {
+public class TpPortletResponse extends TpPortlet implements PortletResponse {
 
 	@Autowired
-	private HttpServletResponse httpServletResponse;
-
+	private PortletTools portletTools;
+	
 	private Map<String, List<String>> property = new HashMap<String, List<String>>();
-		
+
 	/**
 	 * Ajoute une valeur à une liste déjà existante,
 	 * on crée la liste si elle n'existe pas
@@ -69,8 +71,8 @@ public class TpPortletResponse implements PortletResponse {
 	}
 
 	/* Getter & Setter */
-	public HttpServletResponse getHttpServletResponse() {
+	protected HttpServletResponse getHttpServletResponse() {
 		return httpServletResponse;
 	}
-
+	
 }

@@ -34,16 +34,23 @@ import javax.portlet.PortletContext;
 import javax.portlet.PortletRequestDispatcher;
 import javax.servlet.ServletContext;
 
+import net.tinyportal.service.portlet.PortletLoader;
+
 import org.springframework.web.context.ServletContextAware;
 
 public class TpPortletContext implements PortletContext, ServletContextAware  {
-//	@Autowired
+	
+	/**
+	 * servletContext du portlet initialisé par {@link PortletLoader}
+	 */
 	ServletContext servletContext;
 		
 	Map<String, Object> attribute = new HashMap<String, Object>();
 	Properties initParameter = new Properties();
 
-//	String portletPath;
+	/**
+	 * Nom du porlet tel que définit dans portlet.xml avec la balise <code>display-name</code>.
+	 */
 	String portletName;
 	
 	public TpPortletContext() {}
@@ -55,19 +62,6 @@ public class TpPortletContext implements PortletContext, ServletContextAware  {
 	public ServletContext getServletContext() {
 		return servletContext;
 	}
-
-//	/**
-//	 * Positionne le chemin du portlet
-//	 * @param portletPath Chemin relatif du portlet
-//	 */
-//	public void setPortletPath(String portletPath) {
-//		File f = new File(servletContext.getRealPath(portletPath));
-//		if (!f.isDirectory()) {
-//			
-//		}
-////		File contextPath = new File(servletContext.getRealPath("/"));
-////		this.portletPath = f.toString().substring(contextPath.toString().length()).replaceAll("\\\\", "/");
-//	}
 
 	/**
 	 * Positionne le nom du portlet
@@ -173,7 +167,4 @@ public class TpPortletContext implements PortletContext, ServletContextAware  {
 	public String getPortletContextName() {
 		return portletName;
 	}
-	
-	
-
 }

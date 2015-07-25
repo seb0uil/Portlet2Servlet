@@ -88,20 +88,20 @@ public class PortletXML{
 	private Map<String, String> initParameters = new HashMap<String, String>();
 
 
-	public TpPortletConfig getPortletConfig() {
-		TpPortletConfig portletConfig = new TpPortletConfig();
-		portletConfig.setSecurity(security);
-		portletConfig.setBundleBaseName(bundle);
-		portletConfig.setMimeType(MimeType);
-		portletConfig.setPortletInfo(portletInfo);
-		portletConfig.setPortletModes(portletMode);
-		portletConfig.setWindowStates(windowState);
-		portletConfig.setPorletName(PortletName);
-		TpPortletPreference p = new TpPortletPreference(portletPreference,readOnlyPreferences);
-		portletConfig.setPortletPreference(p);
-		portletConfig.setPortletClass(PortletClass);
-		return portletConfig;
-	}
+//	public TpPortletConfig getPortletConfig() {
+//		TpPortletConfig portletConfig = new TpPortletConfig();
+//		portletConfig.setSecurity(security);
+//		portletConfig.setBundleBaseName(bundle);
+//		portletConfig.setMimeType(MimeType);
+//		portletConfig.setPortletInfo(portletInfo);
+//		portletConfig.setPortletModes(portletMode);
+//		portletConfig.setWindowStates(windowState);
+//		portletConfig.setPorletName(PortletName);
+//		TpPortletPreference p = new TpPortletPreference(portletPreference,readOnlyPreferences);
+//		portletConfig.setPortletPreference(p);
+//		portletConfig.setPortletClass(PortletClass);
+//		return portletConfig;
+//	}
 
 	public PortletXML(Element portletElement, Namespace portletNS){
 		try {
@@ -139,7 +139,7 @@ public class PortletXML{
 			/*
 			 * Gestion des prÃ©fÃ©rences de portlet
 			 */
-			Element portletPreferencesElement = portletElement.getChild("portlet-preferences",portletNS);
+			Element portletPreferencesElement = portletElement.getChild("portlet-portletPreferences",portletNS);
 			if(portletPreferencesElement!=null) {
 				List<Element> preferencesElement = portletPreferencesElement.getChildren("preference",portletNS);
 				if (preferencesElement!=null)

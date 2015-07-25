@@ -23,9 +23,7 @@ package net.tinyportal.javax.portlet;
 import java.io.IOException;
 
 import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
 import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.servlet.RequestDispatcher;

@@ -7,29 +7,33 @@ import net.tinyportal.javax.portlet.TpPortletConfig;
 
 public class PortletPool {
 
-	Map<String, Map<String, TpPortletConfig>> pool = new HashMap<String, Map<String, TpPortletConfig>>();
+	private Map<String, Map<String, TpPortletConfig>> portletConfigs = new HashMap<String, Map<String, TpPortletConfig>>();//	private Map<String, Map<String, TpPortletPreference>> portletPreferences = new HashMap<String, Map<String, TpPortletPreference>>();
 
 	public void addPortletConfig(String portletContextName, String portletName, TpPortletConfig portletConfig) {
 		Map<String, TpPortletConfig> portletsConfig;
-		if (pool.containsKey(portletContextName)) {
-			portletsConfig = pool.get(portletContextName);
+		if (portletConfigs.containsKey(portletContextName)) {
+			portletsConfig = portletConfigs.get(portletContextName);
 		} else {
 			portletsConfig = new HashMap<String, TpPortletConfig>();
-			pool.put(portletContextName, portletsConfig);
+			portletConfigs.put(portletContextName, portletsConfig);
 		}
 		portletsConfig.put(portletName, portletConfig);
 	}
 
-	public TpPortletConfig getPortletConfig(String portletContextName, String portletName) {
+	public TpPortletConfig getPortletConfig(String portletContext, String portletName) {
 		Map<String, TpPortletConfig> portletsConfig;
-		if (pool.containsKey(portletContextName)) {
-			portletsConfig = pool.get(portletContextName);
+		if (portletConfigs.containsKey(portletContext)) {
+			portletsConfig = portletConfigs.get(portletContext);
 			return portletsConfig.get(portletName);
 		}
 		return null;
 	}
 
-	boolean hasPortletContext(String portletContext) {
-		return pool.containsKey(portletContext);
+	public boolean hasPortletContext(String portletContext) {
+		return portletConfigs.containsKey(portletContext);
+	}
+	
+	public boolean hasPortlet(String portletContext, String portletName) {
+		return (portletConfigs.containsKey(portletContext) && portletConfigs.get(portletContext).containsKey(portletName));
 	}
 }

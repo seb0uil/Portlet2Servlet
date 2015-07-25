@@ -1,22 +1,13 @@
 package net.tinyportal.controller;
 
-import javax.portlet.Portlet;
-import javax.portlet.PortletConfig;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.tinyportal.javax.portlet.TpPortletConfig;
-import net.tinyportal.javax.portlet.TpRenderRequest;
-import net.tinyportal.javax.portlet.TpRenderResponse;
-import net.tinyportal.service.Service;
-import net.tinyportal.service.ServicePortlet;
-import net.tinyportal.service.portlet.PortletLoader;
-import net.tinyportal.service.portlet.PortletPool;
-import net.tinyportal.tools.FictiveHttpServletResponse;
+import net.tinyportal.service.portlet.PortletExecutor;
+import net.tinyportal.service.portlet.PortletName;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,37 +20,24 @@ import org.springframework.web.servlet.ModelAndView;
 public class TestController {
 
 	@Autowired
-	TpRenderRequest portletRequest;
-	
-	@Autowired
-	TpRenderResponse portletResponse;
-	
-	@Autowired
-	PortletLoader portletLoader;
-	
-	@Autowired
-	PortletPool portletPool;
-	
-	   @RequestMapping(method = RequestMethod.GET)
-	   public ModelAndView handleRenderRequest(HttpServletRequest request, HttpServletResponse response)
+	PortletExecutor portletExecutor;
+
+	@RequestMapping(method = RequestMethod.GET)
+	public ModelAndView handleRenderRequest(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
+		Map<String, Object> model = new HashMap<String, Object>();
 
-			ServletContext portletContext = request.getServletContext().getContext("/samplePortlet-0.0.1-SNAPSHOT");
-			portletLoader.load(portletContext);
-			TpPortletConfig portletConfig = portletPool.getPortletConfig(portletContext.getContextPath(), "samplePortlet");
+		String portletName = "samplePortlet";
+		String portletContext = "/samplePortlet-0.0.1-SNAPSHOT";
 
-			Service.addService(ServicePortlet.PORTLET, portletConfig.getPortletClass(), portletContext);
-			Portlet p = ServicePortlet.getInstance();
-
-			
-			p.init((PortletConfig)portletConfig);
-			p.render((RenderRequest)portletRequest, (RenderResponse)portletResponse);
-
-			RequestDispatcher servletDispatcher = portletResponse.getDispatcher();
-			HttpServletResponse newResponse = new FictiveHttpServletResponse((HttpServletResponse) response, portletResponse);
-			servletDispatcher.include(request, newResponse);
-			System.out.println(newResponse.toString());
-			
-		return new ModelAndView("/test", null);
+		PortletName portlet1 = new PortletName(portletContext, portletName, "node1");
+		PortletName portlet2 = new PortletName(portletContext, portletName, "node2");
+		PortletName[] names = {portlet1, portlet2};
+		
+		Map<String, String> render = portletExecutor.executePortlets(names);
+		
+		model.put("content1", render.get("node1"));
+		model.put("content2", render.get("node2"));
+		return new ModelAndView("/test", model);
 	}
 }

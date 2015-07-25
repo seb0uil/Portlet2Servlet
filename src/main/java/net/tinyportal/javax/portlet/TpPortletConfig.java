@@ -45,7 +45,6 @@ public class TpPortletConfig implements PortletConfig , Cloneable{
 
 	TpPortletContext portletContext;
 
-	ServletContext servletContext;
 	/**
 	 * Paramètres positionnés dans le portlet.xml
 	 * dans le noeud <init-param>
@@ -78,14 +77,10 @@ public class TpPortletConfig implements PortletConfig , Cloneable{
 	String portletClass;
 
 	/**
-	 * Chemin relatif du portlet par rapport à la webapp du portail
-	 */
-//	String portletPath;
-
-	/**
 	 * Nom du bundle de message utilisé par le portlet
 	 */
 	String bundleBaseName;
+	ClassLoader bundleClassLoader;
 
 	/**
 	 * Map clé/valeur de l'ensemble des éléments <code>portlet-info</code>
@@ -122,7 +117,7 @@ public class TpPortletConfig implements PortletConfig , Cloneable{
 
 	@Override
 	public ResourceBundle getResourceBundle(Locale locale) {
-		ResourceBundle messages = ResourceBundle.getBundle(bundleBaseName, locale, loader);
+		ResourceBundle messages = ResourceBundle.getBundle(bundleBaseName, locale, bundleClassLoader);
 		return  new TpResourceBundle(messages, portletInfo);
 	}
 
@@ -143,12 +138,20 @@ public class TpPortletConfig implements PortletConfig , Cloneable{
 
 	/* Getter & Setter */
 
-	public void setBundleBaseName(String bundleBaseName) {
+	public void setBundleBaseName(String bundleBaseName, ClassLoader portalClassloader) {
 		/*
 		 * Si le portlet ne déclare pas de bundle, on utilise celui du portail
 		 */
-		this.bundleBaseName = bundleBaseName;
-		if (this.bundleBaseName == null) this.bundleBaseName = Constant.portal_context.getProperty(Constant.portal_bundle);
+		//TODO gérer la lecture de Constant.portal_bundle depuis un fichier properties
+		if (this.bundleBaseName == null) {
+			this.bundleBaseName = Constant.portal_bundle;
+			ClassLoader defaultLoader = portalClassloader;
+			this.bundleClassLoader = defaultLoader;
+		} else {
+			this.bundleBaseName = bundleBaseName;
+			this.bundleClassLoader = this.loader;
+		}
+		
 
 	}
 
@@ -160,8 +163,6 @@ public class TpPortletConfig implements PortletConfig , Cloneable{
 		this.portletContext = portletContext;
 		this.loader = portletContext.getServletContext().getClassLoader();
 	}
-
-
 
 	public List<PortletMode> getPortletModes() {
 		return portletMode;
@@ -219,14 +220,6 @@ public class TpPortletConfig implements PortletConfig , Cloneable{
 
 	public void setPortletClass(String portletClass) {
 		this.portletClass = portletClass;
-	}
-
-	public ServletContext getServletContext() {
-		return servletContext;
-	}
-
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
 	}
 
 }

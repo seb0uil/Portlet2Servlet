@@ -1,5 +1,8 @@
 package net.tinyportal.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.portlet.Portlet;
 
 /**
@@ -8,34 +11,23 @@ import javax.portlet.Portlet;
  *
  */
 public class ServicePortlet extends Service<Portlet> {
-	
-	/**
-	 * Nom du service implémenté
-	 */
-	public static final String PORTLET = "portlet";
 
 	/**
 	 * 
 	 */
-	static Service servicePortlet;
+	static Map<String,Service<Portlet>> servicePortlets = new HashMap<String, Service<Portlet>>();
 	
 	/**
 	 * Récupération du singleton
 	 * @return L'interface Test
 	 */
-	synchronized public static Portlet getInstance() {
-		if (servicePortlet == null) {
-			servicePortlet = new ServicePortlet();
-			servicePortlet.setClass(Portlet.class, PORTLET);
+	synchronized public static Portlet getInstance(String portletInstance) {
+		if (!servicePortlets.containsKey(portletInstance)) {
+			ServicePortlet servicePortlet = new ServicePortlet();
+			servicePortlet.setClass(Portlet.class, portletInstance);
+			servicePortlets.put(portletInstance, servicePortlet);
 		}
-		return (Portlet) servicePortlet.getService();
+		return (Portlet) servicePortlets.get(portletInstance).getService();
 	}
 	
-	/**
-	 * Réinitialise le singleton, nécessaire afin de changer l'implémentation
-	 * de celui-ci
-	 */
-	public static void init() {
-		servicePortlet = null;
-	}
 }

@@ -40,10 +40,12 @@ public class TpPortletURL implements PortletURL {
 	private boolean useSecure = false;
 	private String portletId;
 	private String action;
+	private String prefix;
 
-	public TpPortletURL(String portletId, String action) {
+	public TpPortletURL(String prefix, String portletId, String action) {
 		this.portletId = portletId;
 		this.action = action;
+		this.prefix = prefix;
 	}
 
 	@Override
@@ -82,7 +84,7 @@ public class TpPortletURL implements PortletURL {
 	}
 
 	public String toString () {
-		StringBuffer sb = new StringBuffer("?");
+		StringBuffer sb = new StringBuffer(prefix + "?");
 		if (this.windowState != null) {
 			sb.append(this.portletId).append("_").append("state").append("=");
 			sb.append(this.windowState.toString()).append("&");
@@ -111,20 +113,4 @@ public class TpPortletURL implements PortletURL {
 		}
 		return sb.toString();		 
 	}
-
-	/**
-	 * Calcul un id unique pour un portlet 
-	 * @param portlet le <code>portletHolder</code> réferencant le portlet 
-	 * @return un <code>String</code> indiquant un id unique
-	 */
-	static public String getPortletId() { //PortletHolder portlet){
-		//TODO
-		return "test";
-		//		try {
-//			return portlet.getPortletId();
-//		} catch (Exception e) {
-//			return portlet.toString();	
-//		}
-	}
-
 }

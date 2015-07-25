@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
+import javax.servlet.ServletContext;
 
 import net.tinyportal.javax.portlet.TpPortletConfig;
 import net.tinyportal.javax.portlet.TpPortletPreference;
@@ -17,9 +18,15 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.ServletContextAware;
 
-public class PortletXMLReader {
+public class PortletXMLReader implements ServletContextAware {
 
+	
+	@Autowired
+	ServletContext servletContext;
+	
 	public List<TpPortletConfig> reader(InputStream xmlDocument) {
 		// Liste des configs contenu dans le portletxml
 		List<TpPortletConfig> portletsConfig = new ArrayList<TpPortletConfig>();
@@ -42,8 +49,9 @@ public class PortletXMLReader {
 			PortletXML portletXml = new PortletXML(portletElement, portletNS);
 			String portletName  = portletXml.getPortletName();
 			TpPortletConfig tpPortletConfig = new TpPortletConfig();
+
 			tpPortletConfig.setSecurity(portletXml.getSecurity());
-			tpPortletConfig.setBundleBaseName(portletXml.getBundle());
+			tpPortletConfig.setBundleBaseName(portletXml.getBundle(), servletContext.getClassLoader());
 			tpPortletConfig.setMimeType(portletXml.getMimeType());
 			tpPortletConfig.setPortletInfo(portletXml.getPortletInfo());
 			tpPortletConfig.setPortletModes(portletXml.getPortletModes());
@@ -66,5 +74,10 @@ public class PortletXMLReader {
 			portletsConfig.add(tpPortletConfig);
 		}
 		return portletsConfig;
+	}
+	
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
 	}
 }

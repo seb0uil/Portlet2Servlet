@@ -29,20 +29,12 @@ import java.util.Locale;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderResponse;
 import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
 
 import net.tinyportal.tools.CommitBufferedOutputStream;
 import net.tinyportal.tools.TpPrintWriter;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class TpRenderResponse extends TpPortletResponse implements RenderResponse{
 
-	@Autowired
-	private HttpServletRequest request;
-	
-
-	
 	/**
 	 * Titre du portlet
 	 */
@@ -60,11 +52,6 @@ public class TpRenderResponse extends TpPortletResponse implements RenderRespons
 	 * Dispatcher du portlet
 	 */
 	private RequestDispatcher dispatcher = null;
-
-	/**
-	 * Identifiant unique du portlet
-	 */
-//	private String portletId;
 
 	/*
 	 * On ne peut pas lancer getWriter et getPortletOutputStream
@@ -94,13 +81,15 @@ public class TpRenderResponse extends TpPortletResponse implements RenderRespons
 	@Override
 	public PortletURL createRenderURL() {
 		//TODO
-		return new TpPortletURL("test", "render");
+		String prefix = httpRequest.getScheme() + "://" + httpRequest.getServerName() + ":" +  httpRequest.getServerPort() + httpRequest.getServletContext().getContextPath() + httpRequest.getServletPath();
+		return new TpPortletURL(prefix, getPortletFullName(), "render");
 	}
 
 	@Override
 	public PortletURL createActionURL() {
 		//TODO
-		return new TpPortletURL("test", "action");
+		String prefix = httpRequest.getScheme() + "://" + httpRequest.getServerName() + ":" +  httpRequest.getServerPort() + httpRequest.getServletContext().getContextPath() + httpRequest.getServletPath();
+		return new TpPortletURL(prefix, getPortletFullName(), "action");
 	}
 
 	@Override

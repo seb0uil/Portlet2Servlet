@@ -73,12 +73,12 @@ public class Constant {
 	/**
 	 * Context du portail
 	 */
-	static public final TpPortalContext portal_context = new TpPortalContext();
+	//static public final TpPortalContext portal_context = new TpPortalContext();
 	
 	/**
 	 * clé du fichier de propriété du portail référencant le bundle du portail
 	 */
-	static public final String portal_bundle = "net.tinyportal.bundle";
+	static public final String portal_bundle = "language";
 	
 	/**
 	 * clé du fichier de propriété du portail référencant la version du portail

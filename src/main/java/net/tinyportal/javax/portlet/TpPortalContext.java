@@ -55,7 +55,7 @@ public class TpPortalContext implements PortalContext {
 	/*
 	 * On initialize les modes et les états autorisés par le portail 
 	 */
-	static {
+	public TpPortalContext() {
 		portletMode.add(PortletMode.VIEW);
 		portletMode.add(PortletMode.EDIT);
 		portletMode.add(PortletMode.HELP);
@@ -63,9 +63,20 @@ public class TpPortalContext implements PortalContext {
 		windowState.add(WindowState.MAXIMIZED);
 		windowState.add(WindowState.NORMAL);
 		windowState.add(WindowState.MINIMIZED);
+		
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		java.io.InputStream is = cl.getResourceAsStream(Constant.PORTAL_PROPERTY);
+		if (is != null) {
+			property = new Properties();
+			try {
+				property.load(is);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
 	}
 
-	static Properties property = getPropertiesResource();
+	private Properties property;
 
 	@Override
 	public String getProperty(String name) {
@@ -96,26 +107,6 @@ public class TpPortalContext implements PortalContext {
 	@Override
 	public String getPortalInfo() {
 		return getProperty(Constant.portal_version);
-	}
-
-	/** Référence vers le fichier de définition des ressources de 
-	 * l'application 
-	 * @return MessageResources
-	 */
-	public static Properties getPropertiesResource() {
-		if (property == null) {
-			ClassLoader cl = Thread.currentThread().getContextClassLoader();
-			java.io.InputStream is = cl.getResourceAsStream(Constant.PORTAL_PROPERTY);
-			if (is != null) {
-				property = new Properties();
-				try {
-					property.load(is);
-				} catch (IOException e) {
-					logger.error(e);
-				}
-			}
-		}
-		return property;
 	}
 	
 	/**

@@ -29,22 +29,21 @@ import javax.portlet.PortletSession;
 import javax.servlet.http.HttpSession;
 
 import net.tinyportal.Constant;
+import net.tinyportal.service.portlet.PortletPool;
 import net.tinyportal.tools.TpEnumeration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class TpPortletSession implements PortletSession {
+	@Autowired
+	PortletPool portletPool;
+	
 	/**
 	 * Session http sur laquelle s'appuie la session du portlet
 	 */
-	@Autowired
 	HttpSession session;
-	
-	/**
-	 * Contexte du portlet
-	 */
-	
+		
 	/**
 	 * Discriminant pour le portlet afin de gérer les 
 	 * objets en session en fonction du portlet
@@ -55,17 +54,24 @@ public class TpPortletSession implements PortletSession {
 	 * Discriminant pour l'application afin de gérer les 
 	 * objets en session en fonction du portail
 	 */
-	String applicationScopeName = Constant.javax_portlet_session + "portalContext";
+	String applicationScopeName;
+	
+	String portletContext;
+	
+	String portletName;
 	
 	/**
 	 * Flag indiquant si la session est valide
 	 */
 	private boolean validSession= true;
 	
-	protected TpPortletSession() {}
-	
-	public void setSession(HttpSession session) {
+	protected TpPortletSession(HttpSession session, String portletContext, String portletName) {
 		this.session = session;
+		this.applicationScopeName = Constant.javax_portlet_session + portletContext;
+		this.portletScopeName = applicationScopeName + portletName;
+		
+		this.portletContext = portletContext;
+		this.portletName = portletName;
 	}
 
 	@Override
@@ -178,8 +184,7 @@ public class TpPortletSession implements PortletSession {
 
 	@Override
 	public PortletContext getPortletContext() {
-//		return tpPortletContext;
-		return null;
+		return portletPool.getPortletConfig(portletContext, portletName).getPortletContext();
 	}
 
 }

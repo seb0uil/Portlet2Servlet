@@ -29,17 +29,8 @@ import javax.portlet.PortletMode;
 import javax.portlet.PortletModeException;
 import javax.portlet.WindowState;
 import javax.portlet.WindowStateException;
-import javax.servlet.http.HttpServletRequest;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class TpActionResponse extends TpPortletResponse implements ActionResponse {
-
-
-
-	@Autowired
-	private HttpServletRequest request;
 
 	Map<String, String[]> parameters = new HashMap<String, String[]>();
 
@@ -52,6 +43,7 @@ public class TpActionResponse extends TpPortletResponse implements ActionRespons
 			throws WindowStateException {
 		if (!isRedirectAllowed) throw new IllegalStateException();
 		isRedirectAllowed=false; //on interdit la redirection cf spec. portlet
+		setValue(WINDOW_STATE, windowState);
 	}
 
 	@Override
@@ -59,6 +51,7 @@ public class TpActionResponse extends TpPortletResponse implements ActionRespons
 			throws PortletModeException {
 		if (!isRedirectAllowed) throw new IllegalStateException();
 		isRedirectAllowed=false; //on interdit la redirection cf spec. portlet
+		setValue(PORTLET_MODE, portletMode);
 	}
 
 	@Override

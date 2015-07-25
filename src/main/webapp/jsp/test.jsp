@@ -10,6 +10,7 @@
 </head>
 <body>
 Test
-
+${content1} <br/>
+${content2} <br/>
 </body>
 </html>

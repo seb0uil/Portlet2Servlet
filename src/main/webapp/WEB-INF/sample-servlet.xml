@@ -13,11 +13,18 @@
 
 	<bean id="renderRequest" class="net.tinyportal.javax.portlet.TpRenderRequest"/>
 	<bean id="renderResponse" class="net.tinyportal.javax.portlet.TpRenderResponse"/>
-	
-	<bean id="PortletLoader" class="net.tinyportal.service.portlet.PortletLoader"/>
-	<bean id="PortletPool" class="net.tinyportal.service.portlet.PortletPool"/>
-	<bean id="PortletXMLReader" class="net.tinyportal.service.portlet.PortletXMLReader"/>
 
+	<bean id="actionRequest" class="net.tinyportal.javax.portlet.TpActionRequest"/>
+	<bean id="actionResponse" class="net.tinyportal.javax.portlet.TpActionResponse"/>
+	
+	<bean id="portletLoader" class="net.tinyportal.service.portlet.PortletLoader"/>
+	<bean id="portletPool" class="net.tinyportal.service.portlet.PortletPool"/>
+	<bean id="portletXMLReader" class="net.tinyportal.service.portlet.PortletXMLReader"/>
+	<bean id="portalContext" class="net.tinyportal.javax.portlet.TpPortalContext" />
+	<bean id="portletTools" class="net.tinyportal.service.portlet.PortletTools" />
+	
+	<bean id="PortletExecutor" class="net.tinyportal.service.portlet.PortletExecutor" />
+	
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="viewClass"

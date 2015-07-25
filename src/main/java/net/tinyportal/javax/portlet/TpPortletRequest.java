@@ -36,87 +36,116 @@ import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 import javax.portlet.WindowState;
-import javax.servlet.http.HttpServletRequest;
 
-import net.tinyportal.Constant;
+import net.tinyportal.exception.NoSuchPortletException;
+import net.tinyportal.service.portlet.PortletPool;
 import net.tinyportal.tools.TpEnumeration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
-public class TpPortletRequest implements PortletRequest {
-//
-//	@Autowired
-//	TpPortletSession portletSession;
-//
-//	@Autowired
-//	TpPortletContext tpPortletContext;
-//	
-//	@Autowired
-//	TpPortletConfig tpPortletConfig; 
+/**
+ * Implémentation de portletRequest.
+ * Nécessite d'être initialisé par {@link #init(String, String)} avant l'utilisation
+ * @author SBE10599
+ *
+ */
+public class TpPortletRequest extends TpPortlet implements PortletRequest {
 
+	
 	@Autowired
-	HttpServletRequest httpRequest;
+	PortletPool portletPool;
+	
+	@Autowired
+	TpPortalContext portalContext;
+	
+	@Autowired
+	ApplicationContext applicationContext;
+	
+
 	
 	Map<String, Object> attributes = new HashMap<String, Object>();
 	
 	
 	private Map<String, String[]> parameters = new HashMap<String, String[]>();
 
-	public TpPortletRequest() {
-//		this.portletHolder = portletBean;
-//		this.tpPortletConfig = portletBean.getPortletConfig().clone();
-//		this.tpPortletConfig.setPorletContext(tpPortletContext);
-//		this.tpPortletContext = (TpPortletContext) this.tpPortletConfig.getPortletContext();
-//		this.httpRequest = httpRequest;
-	}
+	/**
+	 * Configuration du porlet, setté dans la méthode {@link #init(String, String)}
+	 */
+	private TpPortletConfig portletConfig;
 	
-	public void init() {
-//		/*
-//		 * A partir des paramètres positionnés pour la requete http, on récupère les paramètres
-//		 * liés au portlet.
-//		 * Pour cela, on retire le préfix [portletId]_param_ lorsqu'il est présent
-//		 */
-//		Enumeration parameterEnum = httpRequest.getParameterNames();
-//		String portletName = (String)httpRequest.getAttribute("net.tinyportal.spring.portlet");
-//		String portletId = portletHolder.getPortletId();
-//		StringBuffer sbParam = new StringBuffer(portletId).append("_param_");
-//		while (parameterEnum.hasMoreElements()) {
-//			String parameters = (String) parameterEnum.nextElement();
-//			if (parameters.startsWith(sbParam.toString())) {
-//				String value = httpRequest.getParameter(parameters);
-//				String parameter = parameters.substring(sbParam.length());
-//				this.parameters.put(parameter, new String[] {value});
-//			} else {
-//				String value = httpRequest.getParameter(parameters);
-//				this.parameters.put(parameters, new String[] {value});
-//			}
-//		}
+	/**
+	 * Initialise les informations de la request pour le portlet passé en paramètre
+	 * @param portletContext Context du portlet pour lequel initialisé la request
+	 * @param portletName Nom du portlet pour lequel initialisé la request
+	 * @throws NoSuchPortletException Si le portlet passé en paramètre n'existe pas
+	 */
+	public void init(String portletContext, String portletName, String instance) throws NoSuchPortletException {
+		if (!portletPool.hasPortlet(portletContext, portletName)) {
+			throw new NoSuchPortletException();
+		}
+		super.init(portletContext, portletName, instance);
+		portletConfig = portletPool.getPortletConfig(portletContext, portletName);
+
+
+		/*
+		 * A partir des paramètres positionnés pour la requete http, on récupère les paramètres
+		 * liés au portlet.
+		 * Pour cela, on retire le préfix [portletFullName]_param_ lorsqu'il est présent
+		 */
+		Enumeration<String> parameterEnum = httpRequest.getParameterNames();
+		StringBuffer sbParam = new StringBuffer(getPortletFullName()).append("_param_");
+		parameters = new HashMap<String, String[]>(); //On réinitialise la map parametre
+		while (parameterEnum.hasMoreElements()) {
+			String parameters = (String) parameterEnum.nextElement();
+			if (parameters.startsWith(sbParam.toString())) {
+				String value = httpRequest.getParameter(parameters);
+				String parameter = parameters.substring(sbParam.length());
+				this.parameters.put(parameter, new String[] {value});
+			} else if (parameters.equalsIgnoreCase(getPortletFullName().concat("_mode"))){
+				String value = httpRequest.getParameter(parameters);
+				PortletMode portletMode = new PortletMode(value);
+				//TODO lever une exception si portletModeAllowed retourne false
+				if(isPortletModeAllowed(portletMode)) {
+					setPortletMode(portletMode);
+				}
+				
+			} else{
+				String value = httpRequest.getParameter(parameters);
+				this.parameters.put(parameters, new String[] {value});
+			}
+		}
 	}
 
 	@Override
 	public boolean isWindowStateAllowed(WindowState state) {
-		return WindowState.NORMAL.equals(state);
+		return portletConfig.getWindowsStates().contains(state);
 	}
 
 	@Override
 	public boolean isPortletModeAllowed(PortletMode mode) {
-		return PortletMode.VIEW.equals(mode);
+		return portletConfig.getPortletModes().contains(mode);
 	}
 
 	@Override
 	public PortletMode getPortletMode() {
-		return PortletMode.VIEW;
+		PortletMode portletMode = (PortletMode)getValue(PORTLET_MODE);
+		return (portletMode!=null)?portletMode:PortletMode.VIEW;
+	}
+	
+	public void setPortletMode(PortletMode portletMode) {
+		setValue("PortletMode", portletMode);
 	}
 
 	@Override
 	public WindowState getWindowState() {
-		return WindowState.NORMAL;
+		WindowState windowState = (WindowState)getValue(WINDOW_STATE);
+		return (windowState!=null)?windowState:WindowState.NORMAL;
 	}
 
 	@Override
 	public PortletPreferences getPreferences() {
-		//TODO
-		return null;
+		return portletConfig.getPortletPreference();
 	}
 
 	@Override
@@ -126,15 +155,13 @@ public class TpPortletRequest implements PortletRequest {
 
 	@Override
 	public PortletSession getPortletSession(boolean create) {
-		//TODO
-		return null;
-//		if (!create)
-//			return this.portletSession;
-//		else 
-//			if (this.portletSession == null || !this.portletSession.isValidSession())
-//				
-//				this.portletSession.setSession(this.httpRequest.getSession(true));
-//		return this.portletSession;
+		TpPortletSession portletSession = (TpPortletSession)getValue(PORTLET_SESSION);
+		if (create && portletSession == null) {
+				portletSession = new TpPortletSession(this.httpRequest.getSession(true), portletContext, portletName);
+				applicationContext.getAutowireCapableBeanFactory().autowireBean(portletSession);
+				setValue(PORTLET_SESSION, portletSession);
+		}
+		return portletSession;
 	}
 
 	@Override
@@ -144,7 +171,6 @@ public class TpPortletRequest implements PortletRequest {
 			return enumeration.nextElement();
 		else
 			return null;
-		
 	}
 
 	/**
@@ -170,7 +196,7 @@ public class TpPortletRequest implements PortletRequest {
 		if (property != null) 
 			l.add(property);
 		
-		Enumeration<String> properties = Constant.portal_context.getProperties(name);
+		Enumeration<String> properties = portalContext.getProperties(name);
 		if (properties != null) 
 			while (properties.hasMoreElements()) {
 				l.add(properties.nextElement());
@@ -186,12 +212,12 @@ public class TpPortletRequest implements PortletRequest {
 
 	@Override
 	public Enumeration getPropertyNames() {
-		return Constant.portal_context.getPropertyNames();
+		return portalContext.getPropertyNames();
 	}
 
 	@Override
 	public PortalContext getPortalContext() {
-		return Constant.portal_context;
+		return portalContext;
 	}
 
 	@Override
@@ -201,12 +227,7 @@ public class TpPortletRequest implements PortletRequest {
 
 	@Override
 	public String getContextPath() {
-//		
-//		String portletPath = tpPortletContext.getPortletPath();
-//		if (portletPath.equals("ROOT"))
-//				return "";
-//		return "/"+portletPath;
-		return "";
+		return portletContext;
 	}
 
 	@Override
@@ -226,8 +247,9 @@ public class TpPortletRequest implements PortletRequest {
 	 */
 	@Override
 	public boolean isUserInRole(String role) {
-//		if (this.tpPortletConfig.getSecurity().containsKey(role))
-//			role =  this.tpPortletConfig.getSecurity().get(role);
+		if (this.portletConfig.getSecurity().containsKey(role)) {
+			role =  portletConfig.getSecurity().get(role);
+		}
 		return this.httpRequest.isUserInRole(role);
 	}
 
@@ -339,5 +361,8 @@ public class TpPortletRequest implements PortletRequest {
 	public void setParameters(String name, String[] values) {
 		this.parameters.put(name, values);
 	}
+
+
+	
 
 }

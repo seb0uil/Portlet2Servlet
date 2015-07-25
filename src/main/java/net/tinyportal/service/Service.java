@@ -66,15 +66,23 @@ public class Service<T> {
 
 	/**
 	 * Enregistre un service et son implémentation
-	 * @param serviceName
-	 * @param className
-	 * @param servletContext
+	 * @param serviceName Nom du service (ou instance du portlet dans le cas des portlets)
+	 * @param className nom de la classe a executer
+	 * @param servletContext contexte du servlet ou se trouve le service
 	 */
 	public static void addService(String serviceName, String className, ServletContext servletContext) {
 		ServiceLoader sl = new ServiceLoader(className, servletContext);
 		services.put(serviceName, sl);
 	}
 
+	/**
+	 * Indique si un service est enregistré
+	 * @param serviceName Nom du service a vérifier
+	 * @return true si le service est enregistré, false sinon
+	 */
+	public static boolean hasService(String serviceName) {
+		return services.containsKey(serviceName);
+	}
 	/**
 	 * ServiceLoader utilisé pour stocker la classe implémentant le service ainsi que le context
 	 * dans lequel cette implémentation est disponible.
