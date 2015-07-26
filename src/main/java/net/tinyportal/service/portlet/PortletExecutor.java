@@ -23,7 +23,8 @@ import net.tinyportal.javax.portlet.TpRenderRequest;
 import net.tinyportal.javax.portlet.TpRenderResponse;
 import net.tinyportal.service.Service;
 import net.tinyportal.service.ServicePortlet;
-import net.tinyportal.tools.FictiveHttpServletResponse;
+import net.tinyportal.tools.TpHttpServletResponse;
+import net.tinyportal.tools.TpHttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -187,8 +188,10 @@ public class PortletExecutor {
 
 		httpRequest.setAttribute("renderRequest", (RenderRequest)portletRequest);
 		httpRequest.setAttribute("renderResponse", (RenderResponse)portletResponse);
-		HttpServletResponse newResponse = new FictiveHttpServletResponse((HttpServletResponse) httpResponse, portletResponse);
-		servletDispatcher.include(httpRequest, newResponse);
+		HttpServletResponse newResponse = new TpHttpServletResponse((HttpServletResponse) httpResponse, portletResponse);
+
+		TpHttpServletRequest requestWrapper = new TpHttpServletRequest(httpRequest, portletRequest);
+		servletDispatcher.include(requestWrapper, newResponse);
 		return newResponse.toString();
 	}
 }
